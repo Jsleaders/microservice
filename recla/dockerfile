@@ -1,0 +1,4 @@
+From openjdk:15
+Expose 8040
+ADD /target/recla-0.0.1-SNAPSHOT.jar recla.jar
+ENTRYPOINT ["java","-jar","recla.jar"]

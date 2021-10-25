@@ -1,0 +1,13 @@
+version: '3.6'
+services:
+  user:
+    build: D:\Users\Youssef\eclipse-workspace\ms-user
+    ports:
+      - '8030:8030'
+    image: 'user-service'
+    environment:
+      - eureka.client.serviceUrl.defaultZone=http://discovery:8761/eureka/
+networks:
+  default:
+    external: true
+    name: ecommerce

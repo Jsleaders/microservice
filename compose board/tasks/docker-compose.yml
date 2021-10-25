@@ -1,0 +1,86 @@
+version: "3.6"
+services:
+ discovery:
+  build: D:\Users\Youssef\eclipse-workspace\Discovery-server
+  ports:
+   - "8761:8761"
+  image: "discovery-service"
+ config:
+  build: D:\Users\Youssef\eclipse-workspace\config-server
+  command: --spring.profiles.active=native --spring.cloud.config.server.native.searchLocations=/config
+  environment:
+   - eureka.client.serviceUrl.defaultZone=http://discovery:8761/eureka/
+   - spring.profiles.active=native
+  ports:
+   - "8888:8888"
+  image: "config-server"
+  depends_on:
+      - discovery
+ Product:
+  build: D:\Users\Youssef\eclipse-workspace\Product-MS-main
+  environment:
+   - eureka.client.serviceUrl.defaultZone=http://discovery:8761/eureka/
+   - spring.cloud.config.uri=http://config:8888
+  ports:
+   - "8070:8070"
+  image: "product-service"
+  depends_on:
+      - discovery
+      - config
+ Order:
+  build: D:\Users\Youssef\eclipse-workspace\orders
+  environment:
+   - eureka.client.serviceUrl.defaultZone=http://discovery:8761/eureka/
+   - spring.cloud.config.uri=http://config:8888
+  ports:
+   - "8050:8050"
+  image: "order-service"
+  depends_on:
+      - discovery
+      - config
+      - mysqldb 
+ recla:
+  build: D:\Users\Youssef\eclipse-workspace\recla
+  environment:
+   - eureka.client.serviceUrl.defaultZone=http://discovery:8761/eureka/
+   - spring.cloud.config.uri=http://config:8888
+  ports:
+   - "8040:8040"
+  image: "recla-service"
+  depends_on:
+      - discovery
+      - config
+      - mysqldb      
+ gateway:
+   build: D:\Users\Youssef\eclipse-workspace\Zuul-Gateway
+   environment: 
+     - eureka.client.serviceUrl.defaultZone=http://discovery:8761/eureka/
+   ports:
+     - "8762:8762"
+   image: "gateway-server"
+   depends_on:
+      - discovery
+      - config
+ mysqldb:
+   image: mysql:8.0.25
+   environment:
+      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_DATABASE=ordersdb
+      - MYSQL_USER=test
+      - MYSQL_PASSWORD=
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+   ports:
+      - "3306:3306"
+ livraison:
+    build: D:\Users\Youssef\eclipse-workspace\Livraison-MS_Node-main
+    ports:
+      - '5000:3000'
+    image: "livraison-service"
+    depends_on:
+      - discovery
+      - config
+    environment:
+      - eureka.client.serviceUrl.defaultZone=http://discovery:8761/eureka/
+networks:
+  default:
+    name: ecommerce
